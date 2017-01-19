@@ -43,7 +43,6 @@
             
         }
         
-        NSLog(@"Response:%@",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         users = [CoreDataHelper allUsers];              //Get all users from local database
         
         if (users) {

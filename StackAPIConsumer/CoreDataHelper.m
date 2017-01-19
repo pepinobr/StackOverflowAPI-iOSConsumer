@@ -31,31 +31,46 @@
     
     NSPersistentContainer *persistentContainer = [(AppDelegate*)[[UIApplication sharedApplication] delegate] persistentContainer];
     NSManagedObjectContext *context = persistentContainer.viewContext;
+    NSArray __block *users;
     
-    return [context executeFetchRequest:[User fetchRequest]  error:nil];
     
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        NSFetchRequest *request = [User fetchRequest];
+        users =  [context executeFetchRequest:request error:nil];
+        
+    });
+    
+    return users;
 }
 
 
 //Insert a new user in database using his dictionary
-
 + (void)insertUserWithDic:(NSDictionary*)userDic {
     
     NSPersistentContainer *persistentContainer = [(AppDelegate*)[[UIApplication sharedApplication] delegate] persistentContainer];
     NSManagedObjectContext *context = persistentContainer. viewContext;
     
-    User * user;
     
-
-    user = [NSEntityDescription
-              insertNewObjectForEntityForName:@"User"
-              inManagedObjectContext:context];
     
-    user.username = userDic[@"display_name"];
-    user.gravatarURL = userDic[@"profile_image"];
-    user.bronzeBadges = [userDic[@"badge_counts"][@"bronze"] intValue];
-    user.silverBadges = [userDic[@"badge_counts"][@"silver"] intValue];
-    user.goldBadges = [userDic[@"badge_counts"][@"gold"] intValue];
+    
+    
+    dispatch_sync(dispatch_get_main_queue(), ^{            //Insert using main queue to avoid race conditions
+       
+        
+            User * user;
+            user = [NSEntityDescription
+                    insertNewObjectForEntityForName:@"User"
+                    inManagedObjectContext:context];
+            
+            user.username = userDic[@"display_name"];
+            user.gravatarURL = userDic[@"profile_image"];
+            user.bronzeBadges = [userDic[@"badge_counts"][@"bronze"] intValue];
+            user.silverBadges = [userDic[@"badge_counts"][@"silver"] intValue];
+            user.goldBadges = [userDic[@"badge_counts"][@"gold"] intValue];
+        
+        
+    });
+    
     
     
     
